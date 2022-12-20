@@ -1,0 +1,7 @@
+Run 'yarn create next-app .'
+
+Delete '.eslintrc.json' and add '.prettierignore' and '.prettierrc'
+
+Run 'yarn add web3uilit moralis react-moralis'
+
+Wrap '<Component {...pageProps} />' inside '<MoralisProvider>' inside '_app.js'
