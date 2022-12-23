@@ -148,13 +148,6 @@ export default function Sell() {
                 <span class="absolute left-1/2 px-3 font-medium text-gray-900 bg-white -translate-x-1/2">
                     OR
                 </span>
-                <button
-                    onClick={() => {
-                        
-                    }}
-                >
-                    Route tester
-                </button>
             </div>
 
             <div className="bg-white flex justify-around min-h-screen  pt-40">

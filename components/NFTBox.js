@@ -87,14 +87,15 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
 
     const handleBuyItemSuccess = async (tx) => {
         await tx.wait()
-        toast.success("Item Bought, please copy nft address!", {
-            autoClose: 100000,
+        toast.success("Item Bought, copy nft address!", {
+            autoClose: 20000,
             hideProgressBar: true,
         })
-        toast.info(`Address: ${nftAddress}`, { autoClose: 100000, hideProgressBar: true })
+        toast.info(`Address: ${nftAddress}`, { autoClose: 20000, hideProgressBar: true })
+        toast.warning("Page refresh in 20seconds", { autoClose: 20000, hideProgressBar: true })
         setTimeout(() => {
             router.reload("/")
-        }, 100000)
+        }, 20000)
     }
 
     return (
