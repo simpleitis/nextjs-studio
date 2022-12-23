@@ -1,8 +1,10 @@
-import { Modal, Input, useNotification } from "web3uikit"
+import { Modal, Input } from "web3uikit"
 import { useState } from "react"
 import { useWeb3Contract } from "react-moralis"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import { ethers } from "ethers"
+import { useRouter } from "next/router"
+import { toast } from "react-toastify"
 
 export default function UpdateListingModal({
     nftAddress,
@@ -11,19 +13,19 @@ export default function UpdateListingModal({
     marketplaceAddress,
     onClose,
 }) {
-    const dispatch = useNotification()
+    let router = useRouter()
+
 
     const [priceToUpdateListingWith, setPriceToUpdateListingWith] = useState(0)
 
-    const handleUpdateListingSuccess = () => {
-        dispatch({
-            type: "success",
-            message: "listing updated",
-            title: "Please wait for transaction confirmation",
-            position: "topR",
-        })
+    const handleUpdateListingSuccess = async (tx) => {
+        await tx.wait()
+        toast.success('Listing Updated!')
         onClose && onClose()
         setPriceToUpdateListingWith("0")
+        setTimeout(() => {
+            router.reload('/')
+        }, 5000)
     }
 
     const { runContractFunction: updateListing } = useWeb3Contract({
@@ -49,7 +51,7 @@ export default function UpdateListingModal({
                         onError: (error) => {
                             console.log(error)
                         },
-                        onSuccess: () => handleUpdateListingSuccess(),
+                        onSuccess: (tx) => handleUpdateListingSuccess(tx),
                     })
                 }}
                 className="max-h-[75%] scrollbar-hide"

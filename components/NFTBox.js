@@ -5,6 +5,8 @@ import nftAbi from "../constants/BasicNft.json"
 import { useNotification } from "web3uikit"
 import { ethers } from "ethers"
 import UpdateListingModal from "./UpdateListingModal"
+import { useRouter } from "next/router"
+import { toast } from "react-toastify"
 
 const truncateStr = (fullStr, strLen) => {
     if (fullStr.length <= strLen) return fullStr
@@ -29,6 +31,7 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     const [showModal, setShowModal] = useState(false)
     const hideModal = () => setShowModal(false)
     const dispatch = useNotification()
+    let router = useRouter()
 
     const { runContractFunction: getTokenURI } = useWeb3Contract({
         abi: nftAbi,
@@ -52,7 +55,6 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
 
     async function updateUI() {
         const tokenURI = await getTokenURI()
-        console.log(`The TokenURI is ${tokenURI}`)
         if (tokenURI) {
             const requestURL = tokenURI.replace("ipfs://", "https://ipfs.io/ipfs/")
             const tokenURIResponse = await (await fetch(requestURL)).json()
@@ -67,30 +69,32 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     useEffect(() => {
         if (isWeb3Enabled) {
             updateUI()
-            console.log("Update ui is called")
         }
     }, [isWeb3Enabled])
 
-    const isOwnedByUser = seller === account 
+    const isOwnedByUser = seller === account
     const formattedSellerAddress = isOwnedByUser ? "you" : truncateStr(seller || "", 12)
-    const buttonString = isOwnedByUser ? 'Update price' : 'Buy'
+    const buttonString = isOwnedByUser ? "Update price" : "Buy"
 
     const handleCardClick = () => {
         isOwnedByUser
             ? setShowModal(true)
             : buyItem({
                   onError: (error) => console.log(error),
-                  onSuccess: () => handleBuyItemSuccess(),
+                  onSuccess: (tx) => handleBuyItemSuccess(tx),
               })
     }
 
-    const handleBuyItemSuccess = () => {
-        dispatch({
-            type: "success",
-            message: "Item bought!",
-            title: "Item Bought",
-            position: "topR",
+    const handleBuyItemSuccess = async (tx) => {
+        await tx.wait()
+        toast.success("Item Bought, please copy nft address!", {
+            autoClose: 100000,
+            hideProgressBar: true,
         })
+        toast.info(`Address: ${nftAddress}`, { autoClose: 100000, hideProgressBar: true })
+        setTimeout(() => {
+            router.reload("/")
+        }, 100000)
     }
 
     return (

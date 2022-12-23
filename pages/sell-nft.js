@@ -1,17 +1,22 @@
-import { Form, useNotification } from "web3uikit"
+import { Form } from "web3uikit"
 import { useMoralis, useWeb3Contract } from "react-moralis"
 import { ethers } from "ethers"
 import nftAbi from "../constants/BasicNft.json"
 import nftMarketplaceAbi from "../constants/NftMarketplace.json"
 import networkMapping from "../constants/networkMapping.json"
-import { useEffect, useState } from "react"
+import { useContext, useEffect, useState } from "react"
+import { useRouter } from "next/router"
+import { toast } from "react-toastify"
+import { RefreshContext } from "./_app"
 
-export default function Home() {
+export default function Sell() {
     const { chainId, account, isWeb3Enabled } = useMoralis()
     const chainString = chainId ? parseInt(chainId).toString() : "31337"
     const marketplaceAddress = networkMapping[chainString].NftMarketplace[0]
-    const dispatch = useNotification()
     const [proceeds, setProceeds] = useState("0")
+    let router = useRouter()
+    const value = useContext(RefreshContext)
+    let { setRefresh } = value.state
 
     const { runContractFunction } = useWeb3Contract()
 
@@ -56,26 +61,24 @@ export default function Home() {
 
         await runContractFunction({
             params: listOptions,
-            onSuccess: () => handleListSuccess(),
+            onSuccess: (tx) => handleListSuccess(tx),
             onError: (error) => console.log(error),
         })
     }
 
-    async function handleListSuccess() {
-        dispatch({
-            type: "success",
-            message: "NFT listing",
-            title: "NFT listed",
-            position: "topR",
-        })
+    async function handleListSuccess(tx) {
+        await tx.wait()
+        toast.success("NFT listed!")
+        setTimeout(() => {
+            setRefresh(true)
+            router.push("/")
+        }, 3000)
     }
 
-    const handleWithdrawSuccess = () => {
-        dispatch({
-            type: "success",
-            message: "Withdrawing proceeds",
-            position: "topR",
-        })
+    const handleWithdrawSuccess = async (tx) => {
+        await tx.wait()
+        toast.success("Proceeds transfered!")
+        setupUI()
     }
 
     async function setupUI() {
@@ -145,6 +148,13 @@ export default function Home() {
                 <span class="absolute left-1/2 px-3 font-medium text-gray-900 bg-white -translate-x-1/2">
                     OR
                 </span>
+                <button
+                    onClick={() => {
+                        
+                    }}
+                >
+                    Route tester
+                </button>
             </div>
 
             <div className="bg-white flex justify-around min-h-screen  pt-40">
@@ -174,7 +184,7 @@ export default function Home() {
                                             params: {},
                                         },
                                         onError: (error) => console.log(error),
-                                        onSuccess: () => handleWithdrawSuccess,
+                                        onSuccess: (tx) => handleWithdrawSuccess(tx),
                                     })
                                 }}
                             >

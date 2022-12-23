@@ -1,6 +1,6 @@
 import React from "react"
 
-function credits() {
+function Credits() {
     return (
         <div className="min-h-[50vh] flex flex-wrap gap-5 p-5">
             <div class="max-w-sm overflow-hidden shadow-lg border rounded-md flex flex-col">
@@ -121,4 +121,4 @@ function credits() {
     )
 }
 
-export default credits
+export default Credits

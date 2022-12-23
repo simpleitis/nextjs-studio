@@ -5,13 +5,19 @@ import Head from "next/head"
 import { NotificationProvider } from "web3uikit"
 import { ApolloProvider, ApolloClient, InMemoryCache } from "@apollo/client"
 import Footer from "../components/Footer"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+import { useState, createContext } from "react"
+
+export const RefreshContext = createContext()
 
 const client = new ApolloClient({
     cache: new InMemoryCache(),
     uri: "https://api.studio.thegraph.com/query/39476/studio-graph-prod/0.0.1",
 })
 
-function MyApp({ Component, pageProps }) {
+function App({ Component, pageProps }) {
+    const [refresh, setRefresh] = useState(false)
     return (
         <>
             <Head>
@@ -22,9 +28,25 @@ function MyApp({ Component, pageProps }) {
             <MoralisProvider initializeOnMount={false}>
                 <ApolloProvider client={client}>
                     <NotificationProvider>
+                        <ToastContainer
+                            position="bottom-center"
+                            autoClose={5000}
+                            hideProgressBar={false}
+                            newestOnTop={false}
+                            closeOnClick={false}
+                            rtl={false}
+                            pauseOnFocusLoss={false}
+                            draggable={false}
+                            pauseOnHover
+                        />
+
                         <Header />
                         <div className="bg-[#fcfafa] pt-20">
-                            <Component {...pageProps} />
+                            <RefreshContext.Provider
+                                value={{ state: { refresh: refresh, setRefresh: setRefresh } }}
+                            >
+                                <Component {...pageProps} />
+                            </RefreshContext.Provider>
                         </div>
                     </NotificationProvider>
                 </ApolloProvider>
@@ -34,4 +56,4 @@ function MyApp({ Component, pageProps }) {
     )
 }
 
-export default MyApp
+export default App
