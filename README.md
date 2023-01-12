@@ -1,2 +1,3 @@
-1)Index events using the graph
-2)Read from the graph
+# Frontend for NFT Marketplace using next js
+
+Demo video - https://youtu.be/HZag-La0GcQ
